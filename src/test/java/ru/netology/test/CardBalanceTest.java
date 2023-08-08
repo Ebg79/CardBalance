@@ -6,6 +6,8 @@ import org.testng.annotations.Test;
 import ru.netology.data.UserInfo;
 import ru.netology.page.CardBalancePage;
 import ru.netology.page.LoginPage;
+import static com.codeborne.selenide.Condition.hidden;
+import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.open;
 import static java.lang.Math.abs;
 import static org.testng.AssertJUnit.assertEquals;
@@ -33,13 +35,15 @@ public class CardBalanceTest {
         int amount = -1;
 
         var transferPage = dashboard.transferClick(indexCardTo);
-        dashboard = transferPage.successTransfer(amount, user.getCard(indexCardFrom));
+        transferPage.transfer(String.valueOf(amount), user.getCard(indexCardFrom));
+        dashboard = transferPage.checkNotification(hidden);
         dashboard.reloadBalance();
         assertEquals(cardBalanceTo + abs(amount), dashboard.getBalance(indexCardTo));
         assertEquals(cardBalanceFrom - abs(amount), dashboard.getBalance(indexCardFrom));
 
         var revertTransferPage = dashboard.transferClick(indexCardFrom);
-        dashboard = revertTransferPage.successTransfer(amount, user.getCard(indexCardTo));
+        revertTransferPage.transfer(String.valueOf(amount), user.getCard(indexCardTo));
+        dashboard = revertTransferPage.checkNotification(hidden);
         dashboard.reloadBalance();
         assertEquals(cardBalanceTo, dashboard.getBalance(indexCardTo));
         assertEquals(cardBalanceFrom, dashboard.getBalance(indexCardFrom));
@@ -54,7 +58,8 @@ public class CardBalanceTest {
         int amount = 0;
 
         var transferPage = dashboard.transferClick(indexCardTo);
-        dashboard = transferPage.failedTransfer(amount, user.getCard(indexCardFrom));
+        transferPage.transfer(String.valueOf(amount), user.getCard(indexCardFrom));
+        dashboard = transferPage.checkNotification(visible);
         dashboard.reloadBalance();
         assertEquals(cardBalanceTo + abs(amount), dashboard.getBalance(indexCardTo));
         assertEquals(cardBalanceFrom - abs(amount), dashboard.getBalance(indexCardFrom));
@@ -70,13 +75,15 @@ public class CardBalanceTest {
         int amount = 1;
 
         var transferPage = dashboard.transferClick(indexCardTo);
-        dashboard = transferPage.successTransfer(amount, user.getCard(indexCardFrom));
+        transferPage.transfer(String.valueOf(amount), user.getCard(indexCardFrom));
+        dashboard = transferPage.checkNotification(hidden);
         dashboard.reloadBalance();
         assertEquals(cardBalanceTo + abs(amount), dashboard.getBalance(indexCardTo));
         assertEquals(cardBalanceFrom - abs(amount), dashboard.getBalance(indexCardFrom));
 
         var revertTransferPage = dashboard.transferClick(indexCardFrom);
-        dashboard = revertTransferPage.successTransfer(amount, user.getCard(indexCardTo));
+        revertTransferPage.transfer(String.valueOf(amount), user.getCard(indexCardTo));
+        dashboard = revertTransferPage.checkNotification(hidden);
         dashboard.reloadBalance();
         assertEquals(cardBalanceTo, dashboard.getBalance(indexCardTo));
         assertEquals(cardBalanceFrom, dashboard.getBalance(indexCardFrom));
@@ -91,13 +98,15 @@ public class CardBalanceTest {
         int amount = cardBalanceFrom - 1;
 
         var transferPage = dashboard.transferClick(indexCardTo);
-        dashboard = transferPage.successTransfer(amount, user.getCard(indexCardFrom));
+        transferPage.transfer(String.valueOf(amount), user.getCard(indexCardFrom));
+        dashboard = transferPage.checkNotification(hidden);
         dashboard.reloadBalance();
         assertEquals(cardBalanceTo + abs(amount), dashboard.getBalance(indexCardTo));
         assertEquals(cardBalanceFrom - abs(amount), dashboard.getBalance(indexCardFrom));
 
         var revertTransferPage = dashboard.transferClick(indexCardFrom);
-        dashboard = revertTransferPage.successTransfer(amount, user.getCard(indexCardTo));
+        revertTransferPage.transfer(String.valueOf(amount), user.getCard(indexCardTo));
+        dashboard = revertTransferPage.checkNotification(hidden);
         dashboard.reloadBalance();
         assertEquals(cardBalanceTo, dashboard.getBalance(indexCardTo));
         assertEquals(cardBalanceFrom, dashboard.getBalance(indexCardFrom));
@@ -112,13 +121,15 @@ public class CardBalanceTest {
         int amount = cardBalanceFrom;
 
         var transferPage = dashboard.transferClick(indexCardTo);
-        dashboard = transferPage.successTransfer(amount, user.getCard(indexCardFrom));
+        transferPage.transfer(String.valueOf(amount), user.getCard(indexCardFrom));
+        dashboard = transferPage.checkNotification(hidden);
         dashboard.reloadBalance();
         assertEquals(cardBalanceTo + abs(amount), dashboard.getBalance(indexCardTo));
         assertEquals(cardBalanceFrom - abs(amount), dashboard.getBalance(indexCardFrom));
 
         var revertTransferPage = dashboard.transferClick(indexCardFrom);
-        dashboard = revertTransferPage.successTransfer(amount, user.getCard(indexCardTo));
+        revertTransferPage.transfer(String.valueOf(amount), user.getCard(indexCardTo));
+        dashboard = revertTransferPage.checkNotification(hidden);
         dashboard.reloadBalance();
         assertEquals(cardBalanceTo, dashboard.getBalance(indexCardTo));
         assertEquals(cardBalanceFrom, dashboard.getBalance(indexCardFrom));
@@ -133,13 +144,15 @@ public class CardBalanceTest {
         int amount = cardBalanceFrom + 1;
 
         var transferPage = dashboard.transferClick(indexCardTo);
-        dashboard = transferPage.successTransfer(amount, user.getCard(indexCardFrom));
+        transferPage.transfer(String.valueOf(amount), user.getCard(indexCardFrom));
+        dashboard = transferPage.checkNotification(hidden);
         dashboard.reloadBalance();
         assertEquals(cardBalanceTo + abs(amount), dashboard.getBalance(indexCardTo));
         assertEquals(cardBalanceFrom - abs(amount), dashboard.getBalance(indexCardFrom));
 
         var revertTransferPage = dashboard.transferClick(indexCardFrom);
-        dashboard = revertTransferPage.failedTransfer(amount, user.getCard(indexCardTo));
+        revertTransferPage.transfer(String.valueOf(amount), user.getCard(indexCardTo));
+        dashboard = revertTransferPage.checkNotification(visible);
         dashboard.reloadBalance();
         assertEquals(cardBalanceTo, dashboard.getBalance(indexCardTo));
         assertEquals(cardBalanceFrom, dashboard.getBalance(indexCardFrom));
@@ -155,12 +168,45 @@ public class CardBalanceTest {
         int amount = cardBalanceFrom / 2;
 
         var transferPage = dashboard.transferClick(indexCardTo);
-        dashboard = transferPage.failedTransfer(amount, user.getCard(indexCardFrom));
+        transferPage.transfer(String.valueOf(amount), user.getCard(indexCardFrom));
+        dashboard = transferPage.checkNotification(visible);
         dashboard.reloadBalance();
         assertEquals(cardBalanceTo, dashboard.getBalance(indexCardTo));
         assertEquals(cardBalanceFrom, dashboard.getBalance(indexCardFrom));
     }
 
+
+    @Test
+    public void notShouldTransferEmptyAmount() {
+        int indexCardTo = 0;
+        int indexCardFrom = 1;
+        int cardBalanceTo = dashboard.getBalance(indexCardTo);
+        int cardBalanceFrom = dashboard.getBalance(indexCardFrom);
+
+
+        var transferPage = dashboard.transferClick(indexCardTo);
+        transferPage.transfer(null, user.getCard(indexCardFrom));
+        dashboard = transferPage.checkNotification(visible);
+        dashboard.reloadBalance();
+        assertEquals(cardBalanceTo, dashboard.getBalance(indexCardTo));
+        assertEquals(cardBalanceFrom, dashboard.getBalance(indexCardFrom));
+    }
+
+        @Test
+        public void notShouldTransferEmptyCardFrom() {
+            int indexCardTo = 0;
+            int indexCardFrom = 1;
+            int cardBalanceTo = dashboard.getBalance(indexCardTo);
+            int cardBalanceFrom = dashboard.getBalance(indexCardFrom);
+            int amount = cardBalanceFrom / 2;
+
+            var transferPage = dashboard.transferClick(indexCardTo);
+            transferPage.transfer(String.valueOf(amount), null);
+            dashboard = transferPage.checkNotification(visible);
+            dashboard.reloadBalance();
+            assertEquals(cardBalanceTo, dashboard.getBalance(indexCardTo));
+            assertEquals(cardBalanceFrom, dashboard.getBalance(indexCardFrom));
+    }
 
     @Test
     public void shouldCancelTransfer() {
@@ -171,36 +217,8 @@ public class CardBalanceTest {
         int amount = cardBalanceFrom / 2;
 
         var transferPage = dashboard.transferClick(indexCardTo);
-        dashboard = transferPage.cancelTransfer(amount, user.getCard(indexCardFrom));
-        dashboard.reloadBalance();
-        assertEquals(cardBalanceTo, dashboard.getBalance(indexCardTo));
-        assertEquals(cardBalanceFrom, dashboard.getBalance(indexCardFrom));
-    }
-
-        @Test
-        public void notShouldTransferEmptyAmount() {
-            int indexCardTo = 0;
-            int indexCardFrom = 0;
-            int cardBalanceTo = dashboard.getBalance(indexCardTo);
-            int cardBalanceFrom = dashboard.getBalance(indexCardFrom);
-
-            var transferPage = dashboard.transferClick(indexCardTo);
-            dashboard = transferPage.failedTransferWitEmptyAmount(user.getCard(indexCardFrom));
-            dashboard.reloadBalance();
-            assertEquals(cardBalanceTo, dashboard.getBalance(indexCardTo));
-            assertEquals(cardBalanceFrom, dashboard.getBalance(indexCardFrom));
-    }
-
-    @Test
-    public void notShouldTransferEmptyCardFrom() {
-        int indexCardTo = 0;
-        int indexCardFrom = 0;
-        int cardBalanceTo = dashboard.getBalance(indexCardTo);
-        int cardBalanceFrom = dashboard.getBalance(indexCardFrom);
-        int amount = cardBalanceFrom / 2;
-
-        var transferPage = dashboard.transferClick(indexCardTo);
-        dashboard = transferPage.failedTransferWithEmptyCardFrom(amount);
+        transferPage.cancelTransfer(String.valueOf(amount), user.getCard(indexCardFrom));
+        dashboard = transferPage.checkNotification(hidden);
         dashboard.reloadBalance();
         assertEquals(cardBalanceTo, dashboard.getBalance(indexCardTo));
         assertEquals(cardBalanceFrom, dashboard.getBalance(indexCardFrom));
