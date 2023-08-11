@@ -9,7 +9,7 @@ import static com.codeborne.selenide.Selenide.open;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static ru.netology.data.DataHelper.*;
 
-class MoneyTransferTest {
+public class MoneyTransferTest {
     LoginPage loginPage;
     DashboardPage dashboardPage;
 
